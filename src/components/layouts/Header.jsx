@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { logoutUser } from '../../Store/Slices/AuthSlice';
@@ -11,7 +11,9 @@ import {
   Search,
   Bell,
   MessageCircle,
-  LogOut
+  LogOut,
+  Menu,
+  X
 } from 'lucide-react';
 
 const Header = () => {
@@ -19,6 +21,7 @@ const Header = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // Get user's first name from full name or email
   const getUserFirstName = () => {
@@ -43,6 +46,35 @@ const Header = () => {
     }
   };
 
+  // Close sidebar on mobile when route changes
+  useEffect(() => {
+    setIsSidebarOpen(false);
+  }, [location.pathname]);
+
+  // Close sidebar when clicking outside on mobile
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 1024) {
+        setIsSidebarOpen(false);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Handle link click - close sidebar on mobile
+  const handleLinkClick = () => {
+    if (window.innerWidth < 1024) {
+      setIsSidebarOpen(false);
+    }
+  };
+
+  // Toggle sidebar
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
   const navigationItems = [
  
     { name: 'View Students', href: '/students', icon: Users },
@@ -51,8 +83,20 @@ const Header = () => {
 
   return (
     <>
+      {/* Mobile Overlay */}
+      {isSidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden transition-opacity duration-300"
+          onClick={toggleSidebar}
+        />
+      )}
+
       {/* Sidebar */}
-      <div className="fixed inset-y-0 left-0 w-64 bg-gradient-to-b from-violet-900 to-violet-800 text-white flex flex-col">
+      <div
+        className={`fixed inset-y-0 left-0 w-64 bg-gradient-to-b from-violet-900 to-violet-800 text-white flex flex-col z-50 transform transition-transform duration-300 ease-in-out ${
+          isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+        }`}
+      >
  
       <div className="flex items-center px-6 py-6">
         <div className="flex items-center space-x-3">
@@ -71,6 +115,7 @@ const Header = () => {
 
          <Link
               to="/dashboard"
+              onClick={handleLinkClick}
               className={`flex items-center px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
                 location.pathname === "/home" || location.pathname === "/dashboard"
                   ? "bg-violet-500 text-white" 
@@ -82,6 +127,7 @@ const Header = () => {
             </Link>
              <Link
               to="/viewstudent"
+              onClick={handleLinkClick}
               className={`flex items-center px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
                 location.pathname === "/viewstudent" || location.pathname === "/addstudent" || location.pathname.startsWith("/editstudent")
                   ? "bg-violet-500 text-white" 
@@ -96,6 +142,7 @@ const Header = () => {
 
              <Link
               to="/viewclass"
+              onClick={handleLinkClick}
               className={`flex items-center px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
                 location.pathname === "/viewclass" || location.pathname === "/addclass" || location.pathname.startsWith("/editclass") || location.pathname.startsWith("/class/")
                   ? "bg-violet-500 text-white" 
@@ -108,6 +155,7 @@ const Header = () => {
 
             <Link
               to="/profile"
+              onClick={handleLinkClick}
               className={`flex items-center px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
                 location.pathname === "/profile"
                   ? "bg-violet-500 text-white" 
@@ -146,38 +194,52 @@ const Header = () => {
       </div>
 
       {/* Top Header Bar */}
-      <div className="fixed top-0 left-64 right-0 bg-white border-b border-gray-200 px-6 py-4 z-10">
+      <div className="fixed top-0 left-0 lg:left-64 right-0 bg-white border-b border-gray-200 px-4 lg:px-6 py-4 z-30 transition-all duration-300">
         <div className="flex items-center justify-between">
-          {/* Left: Greeting */}
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">
-              Hello {getUserFirstName()}{" "}
-              <span role="img" aria-label="wave">👋</span>
-            </h1>
+          {/* Left: Hamburger Menu + Greeting */}
+          <div className="flex items-center space-x-4">
+            {/* Hamburger Menu Button */}
+            <button
+              onClick={toggleSidebar}
+              className="lg:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
+              aria-label="Toggle sidebar"
+            >
+              {isSidebarOpen ? (
+                <X className="h-6 w-6 text-gray-700" />
+              ) : (
+                <Menu className="h-6 w-6 text-gray-700" />
+              )}
+            </button>
+            <div>
+              <h1 className="text-xl lg:text-2xl font-bold text-gray-900">
+                Hello {getUserFirstName()}{" "}
+                <span role="img" aria-label="wave">👋</span>
+              </h1>
+            </div>
           </div>
 
           {/* Right: Search, Notifications, Messages */}
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2 lg:space-x-4">
             {/* Search Bar */}
             <div className="relative hidden md:block">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
               <input
                 type="text"
                 placeholder="Search from subjects, assignments,"
-                className="pl-10 pr-4 py-2 w-64 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-opacity-20 focus:border-transparent bg-gray-50 hover:bg-gray-100"
+                className="pl-10 pr-4 py-2 w-48 lg:w-64 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-opacity-20 focus:border-transparent bg-gray-50 hover:bg-gray-100 text-sm"
               />
             </div>
 
             {/* Notifications */}
             <div className="relative">
-              <Bell className="h-6 w-6 text-gray-600 cursor-pointer hover:text-sky-500 transition-colors" />
-              <span className="absolute -top-1 -right-1 h-5 w-5 bg-red-500 rounded-full flex items-center justify-center text-xs text-white font-bold">
+              <Bell className="h-5 w-5 lg:h-6 lg:w-6 text-gray-600 cursor-pointer hover:text-sky-500 transition-colors" />
+              <span className="absolute -top-1 -right-1 h-4 w-4 lg:h-5 lg:w-5 bg-red-500 rounded-full flex items-center justify-center text-xs text-white font-bold">
                 3
               </span>
             </div>
 
             {/* Messages */}
-            <MessageCircle className="h-6 w-6 text-gray-600 cursor-pointer hover:text-sky-500 transition-colors" />
+            <MessageCircle className="h-5 w-5 lg:h-6 lg:w-6 text-gray-600 cursor-pointer hover:text-sky-500 transition-colors" />
           </div>
         </div>
       </div>

@@ -70,7 +70,7 @@ const EditStudentPage = () => {
 
   if (!student) {
     return (
-      <div className="min-h-screen bg-gray-50 lg:ml-64 pt-20">
+      <div className="min-h-screen bg-gray-50 pt-16 lg:pt-20 lg:ml-64 transition-all duration-300">
         <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 sm:py-8 lg:px-8">
           <div className="flex min-h-[400px] items-center justify-center">
             <div className="text-center px-4">
@@ -94,7 +94,7 @@ const EditStudentPage = () => {
 
   if (!isAuthor) {
     return (
-      <div className="min-h-screen bg-gray-50 lg:ml-64 pt-20">
+      <div className="min-h-screen bg-gray-50 pt-16 lg:pt-20 lg:ml-64 transition-all duration-300">
         <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 sm:py-8 lg:px-8">
           <div className="flex min-h-[400px] items-center justify-center">
             <div className="text-center px-4">
@@ -117,7 +117,7 @@ const EditStudentPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 lg:ml-64 pt-16 sm:pt-20">
+    <div className="min-h-screen bg-gray-50 pt-16 lg:pt-20 lg:ml-64 transition-all duration-300">
       <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 sm:py-6 lg:px-8 lg:py-8">
         <div className="mx-auto max-w-2xl">
           <div className="mb-6 sm:mb-8 flex items-center">

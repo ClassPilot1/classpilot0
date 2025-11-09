@@ -28,7 +28,7 @@ const StudentsPage = () => {
   });
 
   return (
-    <div className="min-h-screen bg-gray-50 ml-64 pt-20">
+    <div className="min-h-screen bg-gray-50 pt-16 lg:pt-20 lg:ml-64 transition-all duration-300">
       <div className="mx-auto max-w-7xl px-3 sm:px-4 md:px-6 lg:px-8 py-6 md:py-8">
 
         {/* Students Section */}
