@@ -29,11 +29,14 @@ const Login = () => {
 
   const onSubmit = async (data) => {
     try {
+      console.log('🔐 Attempting login with:', { email: data.email });
       await dispatch(loginUser(data)).unwrap();
+      console.log('✅ Login successful, navigating to home');
       navigate("/home");
     } catch (err) {
       // Error is handled by Redux state and displayed in UI
       // Khaladaadka waa la maamulaa Redux state oo waa la muujiyaa UI
+      console.error('❌ Login error caught in component:', err);
     }
   };
 
@@ -124,7 +127,15 @@ const Login = () => {
             </div>
 
             {/* Backend error display */}
-            {error && <p className="text-red-500 text-sm mt-2 mb-2">{error}</p>}
+            {error && (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-4">
+                <p className="text-red-600 text-sm font-medium">Login Failed</p>
+                <p className="text-red-500 text-sm mt-1">{error}</p>
+                <p className="text-gray-500 text-xs mt-2">
+                  Please check your credentials and internet connection.
+                </p>
+              </div>
+            )}
 
             {/* Submit Button */}
             <button

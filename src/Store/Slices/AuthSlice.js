@@ -33,13 +33,18 @@ export const checkAuthStatus = createAsyncThunk(
 export const registerUser = createAsyncThunk(
   "auth/registerUser",
   async (userData, { rejectWithValue }) => {
+    const url = `${BASE_URL}/auth/register`;
+    console.log('📤 Registering user to:', url);
+    
     try {
-      const response = await axios.post(`${BASE_URL}/auth/register`, userData, {
+      const response = await axios.post(url, userData, {
         headers: {
           'Content-Type': 'application/json',
         },
         withCredentials: false, // Disable credentials to prevent CORS issues
       });
+      
+      console.log('✅ Registration successful:', response.status);
       localStorage.setItem("token", response.data.token);
       return response.data;
     } catch (error) {
@@ -49,13 +54,24 @@ export const registerUser = createAsyncThunk(
                           error.message || 
                           "Registration failed";
       
+      // Detailed error logging / Soo saar faahfaahinta khaladaadka
+      console.error("❌ Registration failed:", {
+        url,
+        message: error.message,
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        data: error.response?.data,
+        isNetworkError: !error.response,
+      });
+      
       // Check for CORS errors / Hubi khaladaadka CORS
-      if (error.message?.includes('CORS') || error.message?.includes('Network Error') || !error.response) {
-        console.error("Registration failed - CORS or Network Error:", error.message);
+      if (error.message?.includes('CORS') || 
+          error.message?.includes('Network Error') || 
+          error.message?.includes('Failed to fetch') ||
+          !error.response) {
         return rejectWithValue("Cannot connect to server. Please check your internet connection or try again later.");
       }
       
-      console.error("Registration failed:", error.response || error.message);
       return rejectWithValue(errorMessage);
     }
   }
@@ -65,13 +81,18 @@ export const registerUser = createAsyncThunk(
 export const loginUser = createAsyncThunk(
   "auth/loginUser",
   async (userData, { rejectWithValue }) => {
+    const url = `${BASE_URL}/auth/login`;
+    console.log('📤 Logging in to:', url);
+    
     try {
-      const response = await axios.post(`${BASE_URL}/auth/login`, userData, {
+      const response = await axios.post(url, userData, {
         headers: {
           'Content-Type': 'application/json',
         },
         withCredentials: false, // Disable credentials to prevent CORS issues
       });
+      
+      console.log('✅ Login successful:', response.status);
       localStorage.setItem("token", response.data.token);
       return response.data;
     } catch (error) {
@@ -81,13 +102,24 @@ export const loginUser = createAsyncThunk(
                           error.message || 
                           "Login failed";
       
+      // Detailed error logging / Soo saar faahfaahinta khaladaadka
+      console.error("❌ Login failed:", {
+        url,
+        message: error.message,
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        data: error.response?.data,
+        isNetworkError: !error.response,
+      });
+      
       // Check for CORS errors / Hubi khaladaadka CORS
-      if (error.message?.includes('CORS') || error.message?.includes('Network Error') || !error.response) {
-        console.error("Login failed - CORS or Network Error:", error.message);
+      if (error.message?.includes('CORS') || 
+          error.message?.includes('Network Error') || 
+          error.message?.includes('Failed to fetch') ||
+          !error.response) {
         return rejectWithValue("Cannot connect to server. Please check your internet connection or try again later.");
       }
       
-      console.error("Login failed:", error.response || error.message);
       return rejectWithValue(errorMessage);
     }
   }

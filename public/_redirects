@@ -1,2 +1,7 @@
-/* /index.html 200
+# Netlify Configuration / Qaybta Qaabeynta Netlify
+# Proxy API requests to backend / API wicitaannada u dir backend-ka
+/api/*  https://classpilot-chi.vercel.app/api/:splat  200
 
+# SPA routing - redirect all other routes to index.html
+# SPA routing - dhammaan waddooyinka kale u dir index.html
+/*    /index.html   200
