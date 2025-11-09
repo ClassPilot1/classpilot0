@@ -241,10 +241,28 @@ const classSlice = createSlice({
       })
       .addCase(fetchClasses.fulfilled, (state, action) => {
         state.status = "succeeded";
-        state.classes = action.payload.map((cls) => ({
-          ...cls,
-          studentCount: cls.studentCount ?? cls.students?.length ?? 0,
-        }));
+        // Calculate studentCount from students array if not provided by API
+        // Xisaabi studentCount array-ga ardayda haddii API aysan bixin
+        // Note: GET /api/classes might not return students array or studentCount
+        // Xusuus: GET /api/classes ma bixi karo array-ga ardayda ama studentCount
+        state.classes = action.payload.map((cls) => {
+          // Check if API returned studentCount (even if not documented)
+          // Hubi haddii API-ku bixiyey studentCount (haddii aan loo qorayn)
+          const apiStudentCount = cls.studentCount;
+          const studentsArray = cls.students || [];
+          
+          // Use studentCount from API if available, otherwise calculate from students array
+          // Isticmaal studentCount API-ka haddii ay jirto, haddii kale xisaabi array-ga ardayda
+          const studentCount = apiStudentCount !== undefined && apiStudentCount !== null
+            ? apiStudentCount
+            : (studentsArray.length > 0 ? studentsArray.length : 0);
+          
+          return {
+            ...cls,
+            students: studentsArray,
+            studentCount: studentCount,
+          };
+        });
         state.items = state.classes;
         state.error = null;
       })
@@ -276,20 +294,31 @@ const classSlice = createSlice({
       })
       .addCase(getClassById.fulfilled, (state, action) => {
         state.status = "succeeded";
+        const payload = action.payload;
+        
+        // Calculate studentCount from students array if not provided
+        // Xisaabi studentCount array-ga ardayda haddii aan la bixin
+        const studentsArray = payload.students || [];
+        const studentCount = payload.studentCount !== undefined && payload.studentCount !== null
+          ? payload.studentCount
+          : studentsArray.length;
+        
         state.currentClass = {
-          ...action.payload,
-          students: action.payload.students ? [...action.payload.students] : [],
+          ...payload,
+          students: studentsArray,
+          studentCount: studentCount,
         };
+        
+        // Update in classes list to keep it in sync
+        // Cusbooneysii liiska daraasyada si loo wada socdo
         const index = state.classes.findIndex(
-          (cls) => String(cls._id) === String(action.payload._id)
+          (cls) => String(cls._id) === String(payload._id)
         );
         if (index !== -1) {
-          const studentCount =
-            action.payload.studentCount ?? action.payload.students?.length ?? 0;
           state.classes[index] = {
             ...state.classes[index],
-            ...action.payload,
-            students: action.payload.students ? [...action.payload.students] : [],
+            ...payload,
+            students: studentsArray,
             studentCount: studentCount,
           };
           state.items[index] = state.classes[index];
@@ -356,6 +385,51 @@ const classSlice = createSlice({
         state.status = "succeeded";
         state.error = null;
         
+        // Update student count in classes list after enrollment
+        // Cusbooneysii tiro ardayda liiska daraasyada kadib daraasadda
+        // Note: getClassById and fetchClasses are called after enrollment to refresh data
+        // Xusuus: getClassById iyo fetchClasses waxaa la wacayaa kadib daraasadda si loo cusbooneysiiyo xogta
+        const { classId, data } = action.payload;
+        const normalizedClassId = String(classId);
+        
+        // Try to get updated class data from response
+        // Isku day inaad hesho xogta daraasad cusub ee jawaabta
+        const updatedClass = data?.class || data;
+        
+        const clsIndex = state.classes.findIndex(
+          (cls) => String(cls._id) === normalizedClassId
+        );
+        if (clsIndex !== -1 && updatedClass) {
+          // Use updated class data from API if available
+          // Isticmaal xogta daraasad cusub ee API-ka haddii ay jirto
+          const studentsArray = updatedClass.students || [];
+          const studentCount = updatedClass.studentCount !== undefined && updatedClass.studentCount !== null
+            ? updatedClass.studentCount
+            : studentsArray.length;
+          
+          state.classes[clsIndex] = {
+            ...state.classes[clsIndex],
+            ...updatedClass,
+            studentCount: studentCount,
+            students: studentsArray,
+          };
+          state.items[clsIndex] = state.classes[clsIndex];
+        }
+        
+        // Update currentClass if it matches
+        if (state.currentClass && String(state.currentClass._id) === normalizedClassId && updatedClass) {
+          const studentsArray = updatedClass.students || [];
+          const studentCount = updatedClass.studentCount !== undefined && updatedClass.studentCount !== null
+            ? updatedClass.studentCount
+            : studentsArray.length;
+          
+          state.currentClass = {
+            ...state.currentClass,
+            ...updatedClass,
+            studentCount: studentCount,
+            students: studentsArray,
+          };
+        }
       })
       .addCase(enrollStudents.rejected, (state, action) => {
         state.status = "failed";

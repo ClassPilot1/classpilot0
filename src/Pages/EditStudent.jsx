@@ -59,7 +59,6 @@ const EditStudentPage = () => {
       await dispatch(updateStudent({ id, studentData })).unwrap();
       navigate("/viewstudent");
     } catch (error) {
-      console.error("Failed to update student:", error);
       const errorMessage = 
         typeof error === 'string' 
           ? error 

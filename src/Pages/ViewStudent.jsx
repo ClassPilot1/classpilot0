@@ -1,3 +1,8 @@
+/**
+ * View Students Page Component / Qaybta Bogga Eegista Ardayda
+ * Displays all students with search functionality
+ * Wuxuu muujinayaa dhammaan ardayda leh shaqada baadhida
+ */
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Plus, Users, AlertCircle, Search } from "lucide-react";
@@ -10,13 +15,21 @@ const StudentsPage = () => {
   const { isAuthenticated, user } = useSelector((state) => state.auth);
   const { students, status, error } = useSelector((state) => state.students);
 
+  // Search query state / Xaaladda weydiinta baadhida
   const [searchQuery, setSearchQuery] = useState("");
 
+  /**
+   * Fetch students when component mounts
+   * Soo qaado ardayda marka qaybtu bilaabmo
+   */
   useEffect(() => {
     dispatch(fetchStudents());
   }, [dispatch]);
 
-  // Filter students by search query only
+  /**
+   * Filter students by search query
+   * Filtaar ardayda adoo adeegsanaya weydiinta baadhida
+   */
   const filteredStudents = students.filter((student) => {
     if (!searchQuery) return true;
     const query = searchQuery.toLowerCase();

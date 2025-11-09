@@ -1,3 +1,8 @@
+/**
+ * Add Student Page Component / Qaybta Bogga Daraasadda Daraasadda
+ * Form for adding a new student with validation
+ * Foomka loo daraasadda arday cusub leh xaqiijin
+ */
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -12,6 +17,7 @@ const AddStudentPage = () => {
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
 
+  // Form submission error state / Xaaladda khaladaadka dirida foomka
   const [submitError, setSubmitError] = useState(null);
 
   const {
@@ -23,17 +29,24 @@ const AddStudentPage = () => {
     resolver: zodResolver(studentSchema),
   });
 
+  /**
+   * Handle form submission / Maamul dirida foomka
+   * Adds a new student and navigates to students list
+   * Wuxuu daraasaddaa arday cusub oo wuxuu u wadaa liiska ardayda
+   */
   const onSubmit = async (data) => {
     try {
       setSubmitError(null);
       
       // Email is required by API - schema validation ensures it's present
+      // Iimaylku waa lagama maarmaan - xaqiijinta schema waa hubisaa inuu jiro
       // Convert empty strings to undefined for optional fields only
-      // Exclude teacherId, createdAt, updatedAt - these are set by the backend
+      // U beddel ereyada madhan undefined si loo sameeyo goobaha ikhtiyaari ah
+      // Exclude backend-managed fields / Ka reeb goobaha backend-ku maamula
       const { teacherId, createdAt, updatedAt, ...formData } = data;
       const studentData = {
         ...formData,
-        // Email is required, so always include it
+        // Email is required, so always include it / Iimaylku waa lagama maarmaan, sidaa darteed had iyo jeer ku dar
         email: formData.email.trim(),
         gender: formData.gender === "" ? undefined : formData.gender,
         notes: formData.notes === "" ? undefined : formData.notes,
@@ -41,10 +54,9 @@ const AddStudentPage = () => {
         parentPhone: formData.parentPhone === "" ? undefined : formData.parentPhone,
       };
       await dispatch(addStudent(studentData)).unwrap();
-      reset();
+      reset(); // Clear form after success / Nadiifi foomka kadib guul
       navigate("/viewstudent");
     } catch (error) {
-      console.error("Failed to add student:", error);
       setSubmitError(error.message || "Failed to add student. Please try again.");
     }
   };

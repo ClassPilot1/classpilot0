@@ -71,7 +71,6 @@ const EditClassPage = () => {
       await dispatch(updateClass({ id, classData })).unwrap();
       navigate(`/class/${id}`);
     } catch (error) {
-      console.error("Failed to update class:", error);
       const errorMessage = 
         typeof error === 'string' 
           ? error 

@@ -35,6 +35,10 @@ const ClassCard = ({ classItem }) => {
     }
   };
 
+  // Calculate student count - same method as ClassDetail.jsx (line 347)
+  // Xisaabi tiro ardayda - habka isku midka ah ClassDetail.jsx (line 347)
+  // Prioritize studentCount from API, fallback to students array length, default to 0
+  // Ugu horayn studentCount API-ka, kadib dhererka array-ga ardayda, ugu danbeyntii 0
   const studentCount = classItem.studentCount ?? classItem.students?.length ?? 0;
   const capacity = classItem.capacity || "Unlimited";
 

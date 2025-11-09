@@ -32,7 +32,8 @@ const Login = () => {
       await dispatch(loginUser(data)).unwrap();
       navigate("/home");
     } catch (err) {
-      console.log("Failed to login:", err);
+      // Error is handled by Redux state and displayed in UI
+      // Khaladaadka waa la maamulaa Redux state oo waa la muujiyaa UI
     }
   };
 

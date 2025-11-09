@@ -1,3 +1,8 @@
+/**
+ * Add Class Page Component / Qaybta Bogga Daraasadda Daraasadda
+ * Form for creating a new class with validation
+ * Foomka loo abuuro daraasad cusub leh xaqiijin
+ */
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -12,8 +17,13 @@ function AddClassPage() {
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
 
+  // Form submission error state / Xaaladda khaladaadka dirida foomka
   const [submitError, setSubmitError] = useState(null);
 
+  /**
+   * React Hook Form setup with Zod validation
+   * Dhisista React Hook Form leh xaqiijinta Zod
+   */
   const {
     register,
     handleSubmit,
@@ -23,19 +33,27 @@ function AddClassPage() {
     resolver: zodResolver(classSchema),
   });
 
+  /**
+   * Handle form submission / Maamul dirida foomka
+   * Creates a new class and navigates to classes list
+   * Wuxuu abuuraa daraasad cusub oo wuxuu u wadaa liiska daraasyada
+   */
   const onSubmit = async (data) => {
     try {
       setSubmitError(null);
 
+      // Check if user is authenticated / Hubi haddii isticmaaluhu xaqiijiyey
       if (!user) {
         setSubmitError("You are not authenticated!");
         return;
       }
 
-      // Exclude teacherId, _id, createdAt, updatedAt, students, studentCount - these are set by the backend
+      // Exclude backend-managed fields / Ka reeb goobaha backend-ku maamula
+      // teacherId, _id, createdAt, updatedAt, students, studentCount - these are set by the backend
       const { teacherId, _id, createdAt, updatedAt, students, studentCount, ...formData } = data;
       
       // Convert empty strings to undefined for optional fields
+      // U beddel ereyada madhan undefined si loo sameeyo goobaha ikhtiyaari ah
       const classData = {
         name: formData.name.trim(),
         description: formData.description && formData.description.trim() !== "" ? formData.description.trim() : undefined,
@@ -46,10 +64,9 @@ function AddClassPage() {
       };
 
       await dispatch(createClass(classData)).unwrap();
-      reset();
+      reset(); // Clear form after success / Nadiifi foomka kadib guul
       navigate("/viewclass");
     } catch (error) {
-      console.error("Failed to create class:", error);
       const errorMessage = 
         typeof error === 'string' 
           ? error 

@@ -111,30 +111,12 @@ const ClassDetail = () => {
         const student = freshStudents.find((s) => String(s._id) === normalizedStudentId);
 
         if (!student) {
-          console.warn(`❌ Student not found in freshStudents: ${normalizedStudentId}`);
-          console.warn(`Available student IDs:`, freshStudents.map(s => String(s._id)));
           return false;
         }
 
         const normalizedStudentTeacherId = String(student.teacherId);
         const isOwned = normalizedStudentTeacherId === normalizedUserId;
         const isNotEnrolled = !latestEnrolledIds.includes(normalizedStudentId);
-
-        console.log(`Validating student ${normalizedStudentId}:`, {
-          studentName: student.name,
-          studentTeacherId: normalizedStudentTeacherId,
-          userTeacherId: normalizedUserId,
-          isOwned,
-          isNotEnrolled,
-          alreadyEnrolled: latestEnrolledIds.includes(normalizedStudentId),
-        });
-
-        if (!isOwned) {
-          console.error(`❌ Student ${normalizedStudentId} (${student.name}) not owned by teacher. Student teacherId: "${normalizedStudentTeacherId}", User ID: "${normalizedUserId}"`);
-        }
-        if (!isNotEnrolled) {
-          console.warn(`⚠️ Student ${normalizedStudentId} (${student.name}) already enrolled`);
-        }
 
         return isOwned && isNotEnrolled;
       });
@@ -165,18 +147,14 @@ const ClassDetail = () => {
       }
 
       // Double-check: Ensure all student IDs are strings and verify ownership one more time
+      // Dhiban: Hubi in dhammaan ID-yada ardayda ay yihiin strings oo mar kale hubi milkiyadda
       const finalStudentIds = validStudentIds.map(id => String(id)).filter(studentId => {
         const student = freshStudents.find((s) => String(s._id) === studentId);
         if (!student) {
-          console.error(`❌ Final check: Student ${studentId} not found`);
           return false;
         }
         const studentTeacherId = String(student.teacherId);
-        const matches = studentTeacherId === normalizedUserId;
-        if (!matches) {
-          console.error(`❌ Final check: Student ${studentId} (${student.name}) teacherId "${studentTeacherId}" !== user ID "${normalizedUserId}"`);
-        }
-        return matches;
+        return studentTeacherId === normalizedUserId;
       });
 
       if (finalStudentIds.length === 0) {
@@ -185,77 +163,20 @@ const ClassDetail = () => {
         return;
       }
 
-      // Log what we're sending for debugging
-      console.log("✅ FINAL - Enrolling students:", {
-        classId: id,
-        studentIds: finalStudentIds,
-        userId: normalizedUserId,
-        classTeacherId: normalizedClassTeacherId,
-        selectedCount: selectedStudentIds.length,
-        validCount: validStudentIds.length,
-        finalCount: finalStudentIds.length,
-      });
-
-      // Log student details for verification
-      console.log("📋 Student details being enrolled:", finalStudentIds.map(studentId => {
-        const student = freshStudents.find((s) => String(s._id) === studentId);
-        const studentTeacherId = student ? String(student.teacherId) : null;
-        const matchesUser = studentTeacherId === normalizedUserId;
-        return {
-          id: studentId,
-          name: student?.name,
-          email: student?.email,
-          teacherId: student?.teacherId,
-          normalizedTeacherId: studentTeacherId,
-          userTeacherId: normalizedUserId,
-          matchesUser,
-          matchStatus: matchesUser ? "✅ MATCH" : "❌ MISMATCH",
-        };
-      }));
-      
-      // Final verification - log all students to ensure they're correct
-      console.log("🔍 Final verification - All students in request:", {
-        finalStudentIds,
-        students: finalStudentIds.map(id => {
-          const s = freshStudents.find(st => String(st._id) === id);
-          return s ? {
-            _id: s._id,
-            name: s.name,
-            teacherId: s.teacherId,
-            teacherIdString: String(s.teacherId),
-            userTeacherId: normalizedUserId,
-            match: String(s.teacherId) === normalizedUserId,
-          } : { _id: id, error: "NOT FOUND" };
-        }),
-      });
-
       // Final check: Verify all student IDs are valid and match the exact format from database
+      // Hubinta ugu dambeysa: Hubi in dhammaan ID-yada ardayda ay yihiin sax oo ay u qaataan qaabka database-ka
       const verifiedStudentIds = finalStudentIds.filter(studentId => {
         const student = freshStudents.find((s) => {
-          // Check both string and original format
           return String(s._id) === String(studentId) || s._id === studentId;
         });
         
         if (!student) {
-          console.error(`❌ CRITICAL: Student ID ${studentId} not found in freshStudents list`);
           return false;
         }
         
-        // Verify ownership one more time with exact match
         const studentTeacherId = String(student.teacherId);
         const userTeacherId = String(normalizedUserId);
-        const matches = studentTeacherId === userTeacherId;
-        
-        if (!matches) {
-          console.error(`❌ CRITICAL: Student ${studentId} (${student.name}) ownership mismatch!`, {
-            studentTeacherId,
-            userTeacherId,
-            student: student.teacherId,
-            user: normalizedUserId,
-          });
-        }
-        
-        return matches;
+        return studentTeacherId === userTeacherId;
       });
       
       if (verifiedStudentIds.length === 0) {
@@ -265,7 +186,6 @@ const ClassDetail = () => {
       }
       
       if (verifiedStudentIds.length !== finalStudentIds.length) {
-        console.error(`⚠️ WARNING: ${finalStudentIds.length - verifiedStudentIds.length} student(s) failed final verification`);
         const proceed = window.confirm(
           `${finalStudentIds.length - verifiedStudentIds.length} student(s) failed verification. Continue with ${verifiedStudentIds.length} student(s)?`
         );
@@ -274,17 +194,8 @@ const ClassDetail = () => {
           return;
         }
       }
-      
-      console.log("🎯 FINAL VERIFIED - Sending to API:", {
-        studentIds: verifiedStudentIds,
-        count: verifiedStudentIds.length,
-        allMatch: verifiedStudentIds.every(id => {
-          const s = freshStudents.find(st => String(st._id) === String(id));
-          return s && String(s.teacherId) === normalizedUserId;
-        }),
-      });
 
-      // Enroll students with verified IDs
+      // Enroll students with verified IDs / Daraasadd ardayda leh ID-yo la xaqiijiyey
       await dispatch(enrollStudents({ classId: id, studentIds: verifiedStudentIds })).unwrap();
 
       // Refresh class data
@@ -300,20 +211,8 @@ const ClassDetail = () => {
 
       alert("Students enrolled successfully!");
     } catch (error) {
-      console.error("Enrollment error:", error);
-      console.error("Full error object:", JSON.stringify(error, null, 2));
-      console.error("Error details:", {
-        type: typeof error,
-        keys: error ? Object.keys(error) : null,
-        message: error?.message,
-        backendMessage: error?.backendMessage,
-        backendError: error?.backendError,
-        status: error?.status,
-        data: error?.data,
-        response: error?.response?.data,
-      });
-
       // Handle both string errors and object errors from Redux
+      // Maamul khaladaadka string iyo object-ka ka yimaada Redux
       let errorMessage = "Failed to enroll students.";
       let backendDetails = null;
 
@@ -382,7 +281,6 @@ const ClassDetail = () => {
       // Clear selected students if the removed student was selected
       setSelectedStudentIds((prev) => prev.filter((id) => String(id) !== normalizedStudentId));
     } catch (error) {
-      console.error("Remove student error:", error);
       const errorMessage =
         typeof error === "string"
           ? error

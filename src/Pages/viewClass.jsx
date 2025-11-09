@@ -1,8 +1,13 @@
+/**
+ * View Classes Page Component / Qaybta Bogga Eegista Daraasyada
+ * Displays all classes with search functionality
+ * Wuxuu muujinayaa dhammaan daraasyada leh shaqada baadhida
+ */
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Plus, BookOpen, AlertCircle, Search } from "lucide-react";
 import { useSelector, useDispatch } from "react-redux";
-import { fetchClasses } from "../Store/Slices/ClassSlice";
+import { fetchClasses, getClassById } from "../Store/Slices/ClassSlice";
 import ClassCard from "../components/ClassCard";
 
 const ClassesPage = () => {
@@ -10,13 +15,39 @@ const ClassesPage = () => {
   const { isAuthenticated, user } = useSelector((state) => state.auth);
   const { classes, status, error } = useSelector((state) => state.classes);
 
+  // Search query state / Xaaladda weydiinta baadhida
   const [searchQuery, setSearchQuery] = useState("");
 
+  /**
+   * Fetch classes when component mounts
+   * Soo qaado daraasyada marka qaybtu bilaabmo
+   * Then fetch each class's details to get accurate studentCount (same as ClassDetail)
+   * Kadib soo qaado faahfaahinta daraasad kasta si loo helo studentCount saxda ah (isku midka ClassDetail)
+   */
   useEffect(() => {
-    dispatch(fetchClasses());
+    const loadClasses = async () => {
+      // First fetch the list of classes
+      // Marka hore soo qaado liiska daraasyada
+      const classesData = await dispatch(fetchClasses()).unwrap();
+      
+      // Then fetch details for each class to get accurate studentCount
+      // Kadib soo qaado faahfaahinta daraasad kasta si loo helo studentCount saxda ah
+      if (Array.isArray(classesData) && classesData.length > 0) {
+        // Fetch details for each class in parallel
+        // Soo qaado faahfaahinta daraasad kasta isku mar
+        await Promise.all(
+          classesData.map((cls) => dispatch(getClassById(cls._id)))
+        );
+      }
+    };
+    
+    loadClasses();
   }, [dispatch]);
 
-  // Filter classes by search query
+  /**
+   * Filter classes by search query
+   * Filtaar daraasyada adoo adeegsanaya weydiinta baadhida
+   */
   const filteredClasses = classes.filter((classItem) => {
     if (!searchQuery) return true;
     const query = searchQuery.toLowerCase();

@@ -33,7 +33,8 @@ function CreateAccount() {
       await dispatch(registerUser(data)).unwrap();
       navigate("/home");
     } catch (err) {
-      console.log(err);
+      // Error is handled by Redux state and displayed in UI
+      // Khaladaadka waa la maamulaa Redux state oo waa la muujiyaa UI
     }
   };
 

@@ -81,7 +81,7 @@ export const logoutUser = createAsyncThunk(
           );
         } catch (apiError) {
           // Continue with logout even if API call fails
-          console.warn("Logout API call failed, continuing with local logout:", apiError);
+          // Weli sii wadaa bixinta haddii wicitaanka API ay ku guuldareyso
         }
       }
       

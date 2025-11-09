@@ -1,3 +1,8 @@
+/**
+ * Home/Dashboard Page Component / Qaybta Bogga Guri/Dashboard
+ * Main dashboard showing statistics and recent activity
+ * Dashboard-ka ugu weyn oo muujinaya tirooyinka iyo waxqabadka ugu dambeeyay
+ */
 import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
@@ -20,32 +25,48 @@ function Home() {
   const { students, status: studentsStatus } = useSelector((state) => state.students);
   const { classes, status: classesStatus } = useSelector((state) => state.classes);
 
+  /**
+   * Fetch students and classes when component mounts
+   * Soo qaado ardayda iyo daraasyada marka qaybtu bilaabmo
+   */
   useEffect(() => {
     dispatch(fetchStudents());
     dispatch(fetchClasses());
   }, [dispatch]);
 
+  /**
+   * Get user's first name / Soo hel magaca koowaad ee isticmaalaha
+   */
   const getUserFirstName = () => {
     if (!user || !user.name) return "Teacher";
     const nameParts = user.name.split(" ");
     return nameParts[0];
   };
 
-  // Calculate total students across all classes
+  /**
+   * Calculate statistics / Xisaabi tirooyinka
+   */
+  // Calculate total students across all classes / Xisaabi wadarta ardayda dhammaan daraasyada
   const totalStudents = students.length;
   const totalClasses = classes.length;
 
-  // Get recent students (last 3)
+  /**
+   * Get recent students (last 3) / Soo hel ardayda ugu dambeeyay (3-ta ugu dambeeyay)
+   */
   const recentStudents = [...students]
     .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
     .slice(0, 3);
 
-  // Get recent classes (last 3)
+  /**
+   * Get recent classes (last 3) / Soo hel daraasyada ugu dambeeyay (3-ta ugu dambeeyay)
+   */
   const recentClasses = [...classes]
     .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
     .slice(0, 3);
 
-  // Get classes with student count
+  /**
+   * Get classes with student count / Soo hel daraasyada leh tiro arday
+   */
   const classesWithStudents = classes.map((cls) => ({
     ...cls,
     studentCount: cls.students?.length || cls.studentCount || 0,
