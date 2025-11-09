@@ -407,7 +407,7 @@ const ClassDetail = () => {
 
   if (status === "loading" && !currentClass) {
     return (
-      <div className="min-h-screen bg-gray-50 ml-64 pt-20">
+      <div className="min-h-screen bg-gray-50 pt-16 lg:pt-20 lg:ml-64 transition-all duration-300">
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
           <div className="flex min-h-[400px] items-center justify-center">
             <div className="text-center">
@@ -422,7 +422,7 @@ const ClassDetail = () => {
 
   if (!currentClass) {
     return (
-      <div className="min-h-screen bg-gray-50 ml-64 pt-20">
+      <div className="min-h-screen bg-gray-50 pt-16 lg:pt-20 lg:ml-64 transition-all duration-300">
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
           <div className="flex min-h-[400px] items-center justify-center">
             <div className="text-center px-4">
@@ -451,7 +451,7 @@ const ClassDetail = () => {
   const isAtCapacity = currentClass.capacity && studentCount >= currentClass.capacity;
 
   return (
-    <div className="min-h-screen bg-gray-50 ml-64 pt-20">
+    <div className="min-h-screen bg-gray-50 pt-16 lg:pt-20 lg:ml-64 transition-all duration-300">
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-6 flex items-center justify-between">
