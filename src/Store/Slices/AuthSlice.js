@@ -2,7 +2,8 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { BASE_URL } from "../Base_URL";
 import axios from "axios";
 
-axios.defaults.withCredentials = true;
+// Note: withCredentials removed to prevent CORS issues on Netlify
+// Fiiro: withCredentials waa la tirtiray si looga hortago CORS dhibaatooyinka Netlify
 
 // ✅ Check auth status
 export const checkAuthStatus = createAsyncThunk(
@@ -33,7 +34,12 @@ export const registerUser = createAsyncThunk(
   "auth/registerUser",
   async (userData, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`${BASE_URL}/auth/register`, userData);
+      const response = await axios.post(`${BASE_URL}/auth/register`, userData, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        withCredentials: false, // Disable credentials to prevent CORS issues
+      });
       localStorage.setItem("token", response.data.token);
       return response.data;
     } catch (error) {
@@ -49,7 +55,12 @@ export const loginUser = createAsyncThunk(
   "auth/loginUser",
   async (userData, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`${BASE_URL}/auth/login`, userData);
+      const response = await axios.post(`${BASE_URL}/auth/login`, userData, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        withCredentials: false, // Disable credentials to prevent CORS issues
+      });
       localStorage.setItem("token", response.data.token);
       return response.data;
     } catch (error) {

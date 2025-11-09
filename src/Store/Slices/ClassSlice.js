@@ -2,7 +2,8 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import { BASE_URL } from "../Base_URL";
 
-axios.defaults.withCredentials = true;
+// Note: withCredentials removed to prevent CORS issues on Netlify
+// Fiiro: withCredentials waa la tirtiray si looga hortago CORS dhibaatooyinka Netlify
 
 // --------------------
 // FETCH CLASSES
