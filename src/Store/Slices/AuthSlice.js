@@ -43,9 +43,20 @@ export const registerUser = createAsyncThunk(
       localStorage.setItem("token", response.data.token);
       return response.data;
     } catch (error) {
-      return rejectWithValue(
-        error.response?.data?.error || error.message || "Registration failed"
-      );
+      // Handle CORS errors gracefully / Maamul khaladaadka CORS si fudud
+      const errorMessage = error.response?.data?.error || 
+                          error.response?.data?.message ||
+                          error.message || 
+                          "Registration failed";
+      
+      // Check for CORS errors / Hubi khaladaadka CORS
+      if (error.message?.includes('CORS') || error.message?.includes('Network Error') || !error.response) {
+        console.error("Registration failed - CORS or Network Error:", error.message);
+        return rejectWithValue("Cannot connect to server. Please check your internet connection or try again later.");
+      }
+      
+      console.error("Registration failed:", error.response || error.message);
+      return rejectWithValue(errorMessage);
     }
   }
 );
@@ -64,9 +75,20 @@ export const loginUser = createAsyncThunk(
       localStorage.setItem("token", response.data.token);
       return response.data;
     } catch (error) {
-      return rejectWithValue(
-        error.response?.data?.error || error.message || "Login failed"
-      );
+      // Handle CORS errors gracefully / Maamul khaladaadka CORS si fudud
+      const errorMessage = error.response?.data?.error || 
+                          error.response?.data?.message ||
+                          error.message || 
+                          "Login failed";
+      
+      // Check for CORS errors / Hubi khaladaadka CORS
+      if (error.message?.includes('CORS') || error.message?.includes('Network Error') || !error.response) {
+        console.error("Login failed - CORS or Network Error:", error.message);
+        return rejectWithValue("Cannot connect to server. Please check your internet connection or try again later.");
+      }
+      
+      console.error("Login failed:", error.response || error.message);
+      return rejectWithValue(errorMessage);
     }
   }
 );
@@ -76,9 +98,12 @@ export const logoutUser = createAsyncThunk(
   "auth/logoutUser",
   async (_, { getState, rejectWithValue }) => {
     try {
-      const token = getState().auth.token;
+      // Get token from state or localStorage as fallback
+      // Hel token-ka state-ka ama localStorage-ka sida fallback
+      const token = getState().auth.token || localStorage.getItem("token");
       
       // Call API to blacklist token (if token exists)
+      // Wicitaanka API si loo blacklist gareeyo token-ka (haddii token uu jiro)
       if (token) {
         try {
           await axios.post(
@@ -88,6 +113,7 @@ export const logoutUser = createAsyncThunk(
               headers: {
                 Authorization: `Bearer ${token}`,
               },
+              withCredentials: false,
             }
           );
         } catch (apiError) {
@@ -97,10 +123,12 @@ export const logoutUser = createAsyncThunk(
       }
       
       // Remove token locally
+      // Token-ka ka saar local-ka
       localStorage.removeItem("token");
       return true;
     } catch (error) {
       // Ensure cleanup even if there's an error
+      // Hubi in la nadiifiyo xitaa haddii khalad uu dhaco
       localStorage.removeItem("token");
       return rejectWithValue(error.message || "Logout failed");
     }
